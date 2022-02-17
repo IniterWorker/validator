@@ -294,6 +294,7 @@ pub fn extract_argless_validation(
     }
 
     let validator = match validator_name.as_ref() {
+        "skip" => Validator::Skip,
         "email" => Validator::Email,
         #[cfg(feature = "card")]
         "credit_card" => Validator::CreditCard,

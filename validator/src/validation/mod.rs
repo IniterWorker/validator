@@ -11,6 +11,7 @@ pub mod non_control_character;
 pub mod phone;
 pub mod range;
 pub mod required;
+pub mod skip;
 pub mod urls;
 
 pub use validator_types::Validator;

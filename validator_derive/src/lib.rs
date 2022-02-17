@@ -339,6 +339,11 @@ fn find_fields_type(fields: &[syn::Field]) -> HashMap<String, String> {
                 elem.to_tokens(&mut tokens);
                 tokens.to_string().replace(' ', "")
             }
+            syn::Type::Array(syn::TypeArray { ref elem, .. }) => {
+                let mut tokens = proc_macro2::TokenStream::new();
+                elem.to_tokens(&mut tokens);
+                tokens.to_string().replace(' ', "")
+            }
             _ => {
                 let mut field_type = proc_macro2::TokenStream::new();
                 field.ty.to_tokens(&mut field_type);
@@ -415,6 +420,9 @@ fn find_validators_for_field(
                                     "url" => {
                                         assert_string_type("url", field_type, &field.ty);
                                         validators.push(FieldValidation::new(Validator::Url));
+                                    }
+                                    "skip" => {
+                                        validators.push(FieldValidation::new(Validator::Skip));
                                     }
                                     #[cfg(feature = "phone")]
                                     "phone" => {
@@ -524,6 +532,7 @@ fn find_validators_for_field(
                                         ));
                                     }
                                     "email"
+                                    | "skip"
                                     | "url"
                                     | "phone"
                                     | "credit_card"

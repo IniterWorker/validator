@@ -504,6 +504,7 @@ pub fn quote_validator(
         Validator::Required | Validator::RequiredNested => {
             validations.push(quote_required_validation(field_quoter, validation))
         }
+        Validator::Skip => validations.push(quote_skip_validation(field_quoter, validation)),
     }
 }
 
@@ -559,6 +560,25 @@ pub fn quote_required_validation(
     let quoted_error = quote_error(validation);
     let quoted = quote!(
         if !::validator::validate_required(#validator_param) {
+            #quoted_error
+            err.add_param(::std::borrow::Cow::from("value"), &#validator_param);
+            errors.add(#field_name, err);
+        }
+    );
+
+    quoted
+}
+
+pub fn quote_skip_validation(
+    field_quoter: &FieldQuoter,
+    validation: &FieldValidation,
+) -> proc_macro2::TokenStream {
+    let field_name = &field_quoter.name;
+    let validator_param = field_quoter.quote_validator_param();
+
+    let quoted_error = quote_error(validation);
+    let quoted = quote!(
+        if !::validator::validate_skip(#validator_param) {
             #quoted_error
             err.add_param(::std::borrow::Cow::from("value"), &#validator_param);
             errors.add(#field_name, err);
